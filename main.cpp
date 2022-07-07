@@ -48,6 +48,7 @@ public:
 int main()
 {
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "This Mario!");
+	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(120);
 
 	// Tile Set
