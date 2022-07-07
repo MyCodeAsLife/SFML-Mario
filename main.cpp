@@ -38,6 +38,7 @@ public:
 	bool m_life;			// Состояние жив/мертв
 
 public:
+	Enemy();
 	void set(Texture& texture, int x, int y);
 	void update(const float time);
 	void collision(const bool dir);
@@ -57,18 +58,22 @@ int main()
 	Player p1(tileSet_texture);
 	// Противник
 	Enemy en1;
-	en1.set(tileSet_texture, 100, 100);
+	en1.set(tileSet_texture, 200, 100);
 	// Карта
 	Sprite tile_sprite(tileSet_texture);
+	// Звук
+	SoundBuffer buffer;
+	buffer.loadFromFile("resources/sound/Jump.ogg");
+	Sound jump_sound(buffer);
+	
+	Music theme_music;
+	theme_music.openFromFile("resources/sound/Mario_Theme.ogg");
+	theme_music.play();
 
 
 	// Камера
 	View camera;
 	camera.reset(FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
-
-
-	// Для отрисовки карты
-	RectangleShape rectangle(Vector2f(32,32));
 
 	// Привязка скорости игры ко времени
 	Clock clock;
@@ -100,6 +105,7 @@ int main()
 		{
 			if (p1.m_onGround)
 			{
+				jump_sound.play();
 				p1.m_dy = -1.16f;		// Высота прыжка
 				p1.m_onGround = false;
 			}
@@ -108,9 +114,23 @@ int main()
 		{
 
 		}
-
+		// Обновление персонажа и врага(ов)
 		p1.update(time);
+		en1.update(time);
 
+		// Обработка столкновения с врагом
+		if (p1.m_rect.intersects(en1.m_rect))	// Если спрайт игрока и врага пересекаются
+			if (en1.m_life)						// Если враг жив
+				if (p1.m_dy > 0)				// Если игрок падает
+				{
+					en1.m_life = false;
+					en1.m_dx = 0.f;
+					p1.m_dy = -0.8f;
+				}		
+				else                            // Если игрок не падает 
+				{
+					p1.m_sprite.setColor(Color::Red);
+				}
 		//// Онимация бездействия
 		//if (stay)
 		//{
@@ -162,11 +182,11 @@ int main()
 				tile_sprite.setPosition(j * 16, i * 16);
 				window.draw(tile_sprite);
 			}
+
 		// Отрисовка персонажа
 		window.draw(p1.m_sprite);
 
 		// Отрисовка врага
-		en1.update(time);
 		window.draw(en1.m_sprite);
 
 		// Отрисовка камеры
@@ -211,9 +231,9 @@ void Player::update(const float time)
 	if (m_currentFrame > 3.f)
 		m_currentFrame -= 3.f;
 	if (m_dx > 0)
-		m_sprite.setTextureRect(IntRect(112 + 31 * static_cast<int>(m_currentFrame), 144, 16, 16));
+		m_sprite.setTextureRect(IntRect(112 + 30 * static_cast<int>(m_currentFrame), 144, 16, 16));
 	if (m_dx < 0)
-		m_sprite.setTextureRect(IntRect(112 + 31 * static_cast<int>(m_currentFrame) + 16, 144, -16, 16));
+		m_sprite.setTextureRect(IntRect(112 + 30 * static_cast<int>(m_currentFrame) + 16, 144, -16, 16));
 	m_sprite.setPosition(m_rect.left, m_rect.top);
 
 	m_dx = 0;
@@ -255,13 +275,20 @@ void Player::collision(bool dir)
 
 }
 
+Enemy::Enemy()
+{
+	m_rect = FloatRect(100, 180, 16, 16);
+	m_dx = m_dy = 0.f;
+	m_currentFrame = 0.f;
+	m_onGround = false;
+	m_life = true;
+}
+
 void Enemy::set(Texture& texture, int x, int y)
 {
 	m_sprite.setTexture(texture);
 	m_rect = FloatRect(x, y, 16, 16);
-	m_dx = 0.05f;
-	m_currentFrame = 0.f;
-	m_life = true;
+	m_dx = 0.15f;
 }
 
 void Enemy::update(const float time)
@@ -275,12 +302,12 @@ void Enemy::update(const float time)
 	m_onGround = false;
 	collision(1);
 
-	m_currentFrame += time * 0.05f;
+	m_currentFrame += time * 0.03f;
 	if (m_currentFrame > 2)
 		m_currentFrame -= 2;
 
-	m_sprite.setTextureRect(IntRect(18 * static_cast<int>(m_currentFrame), 0, 16, 16));
-	if (!m_life)
+	m_sprite.setTextureRect(IntRect(19 * static_cast<int>(m_currentFrame), 0, 16, 16));
+	if (!m_life)	// Если объект мертв, сплющиваем его
 		m_sprite.setTextureRect(IntRect(58, 0, 16, 16));
 	m_sprite.setPosition(m_rect.left, m_rect.top);
 }
@@ -306,10 +333,14 @@ void Enemy::collision(const bool dir)
 				if (m_dx > 0 && dir == false)
 				{
 					m_rect.left = j * 16 - m_rect.width;
+					m_dx = -m_dx;
 				}
-				if (m_dx < 0 && dir == false)
+				// Добавляем else, иначе при столкновении из-за изменения направления движения объект ...
+				// ... телепортируется сквозь припятствие
+				else if (m_dx < 0 && dir == false)
 				{
 					m_rect.left = j * 16 + 16;
+					m_dx = -m_dx;
 				}
 			}
 		}
