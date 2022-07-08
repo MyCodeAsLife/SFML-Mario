@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "Map.h"
+#include "Anim.h"
 
 using namespace sf;
 
@@ -30,10 +31,10 @@ public:
 class Enemy
 {
 public:
-	float m_dx, m_dy;	// Скорость по осям x/y
-	FloatRect m_rect;	// Данные персонажа, координаты(x/y) и размер(ширина/высота) спрайта
-	bool m_onGround;	// Состояние (в воздухе/на земле)
-	Sprite m_sprite;	// Спарйт персонажа
+	float m_dx, m_dy;		// Скорость по осям x/y
+	FloatRect m_rect;		// Данные персонажа, координаты(x/y) и размер(ширина/высота) спрайта
+	bool m_onGround;		// Состояние (в воздухе/на земле)
+	Sprite m_sprite;		// Спарйт персонажа
 	float m_currentFrame;	// Текущий кадр
 	bool m_life;			// Состояние жив/мертв
 
@@ -132,27 +133,6 @@ int main()
 				{
 					p1.m_sprite.setColor(Color::Red);
 				}
-		//// Онимация бездействия
-		//if (stay)
-		//{
-		//	if (leftRight)
-		//	{
-		//		static float currentFrame(0);
-		//		currentFrame += 0.03f * time;
-		//		if (currentFrame > 3.f)
-		//			currentFrame -= 3.f;
-		//		p1.m_sprite.setTextureRect(IntRect(43 * static_cast<int>(currentFrame), 190, 43, 48));
-		//	}
-		//	else
-		//	{
-		//		static float currentFrame(0);
-		//		currentFrame += 0.03f * time;
-		//		if (currentFrame > 3.f)
-		//			currentFrame -= 3.f;
-		//		p1.m_sprite.setTextureRect(IntRect(43 * static_cast<int>(currentFrame) + 43, 190, -43, 48));
-		//	}
-		//}
-		//stay = true;
 
 		// Очистка экрана
 		window.clear(Color(70, 70, 70));
@@ -195,8 +175,8 @@ int main()
 		int y = p1.m_rect.top + 8;		// Плюс половина высоты спрайта
 		if (p1.m_rect.left < (WINDOW_WIDTH / 2) - 8)	// Чтобы камера не уходила за левый край экрана
 			x = WINDOW_WIDTH / 2;	// Разница с условием, равна половине ширины спрайта( иначе будут резкие прыжки камеры)
-		if (p1.m_rect.top > (WINDOW_HEIGHT / 2) + 11)
-			y = (WINDOW_HEIGHT / 2) + 22;
+		if (p1.m_rect.top > ((MAP_HEIGHT * 16) / 2) + 28)	// Одталкиваемся от высоты карты а не экрана
+			y = ((MAP_HEIGHT * 16) / 2) + 32;
 		camera.setCenter(x, y);	// Устанавливаем камеру по центру персонажа
 		window.setView(camera);
 
