@@ -14,6 +14,7 @@ public:
 	Sprite m_sprite;
 
 public:
+	Animation() {};
 	Animation(const Texture& texture, int x, int y, int width, int height, int count, float speed, int step);
 	void tick(const float time);	// Проигрывание анимации
 
@@ -26,8 +27,16 @@ public:
 	std::map<std::string, Animation> m_animList;	// Массив/список соответствия имен анимациям
 
 public:
-	AnimationManager() {};
-	void create(const std::string& name, const Texture& texture, int x, int y, int width, int height, int count);
+	AnimationManager() {}
+	void create(const std::string& name, const Texture& texture, int x, int y, int width, int height,
+		int count, float speed, int step);						// Создание анимации
+	void draw(RenderWindow& window, int x = 0, int y = 0);		// Отрисовка анимации в указанной позиции
+	////// Функции для управления анимациями /////
+	void set(const std::string& name) { m_currentAnim = name; }			// Выбор анимации 
+	void flip(bool flip) { m_animList[m_currentAnim].m_flip = flip; }	// Вкл/выкл отзеркаливание
+	void tick(float time) { m_animList[m_currentAnim].tick(time); }		// Промотка/проигрывание кадров анимации
+	void pause() { m_animList[m_currentAnim].m_isPlaying = false; }		// Отсановка промотки/проигрывания кадров анимации
+	void play() { m_animList[m_currentAnim].m_isPlaying = true; }		// Запуск промотки/проигрывания кадров анимации
 
 };
 
@@ -39,8 +48,8 @@ Animation::Animation(const Texture& texture, int x, int y, int width, int height
 	// Создаем массивы прямоугольников
 	for (int i(0); i < count; ++i)
 	{
-		m_frames.push_back(IntRect(x + i * step + width, y, width, height));
-		m_frames_flip.push_back(IntRect(x + i * step, y, -width, height));
+		m_frames.push_back(IntRect(x + i * step, y, width, height));
+		m_frames_flip.push_back(IntRect(x + i * step + width, y, -width, height));
 	}
 }
 
@@ -57,7 +66,15 @@ inline void Animation::tick(const float time)
 		m_sprite.setTextureRect(m_frames[m_currentFrame]);
 }
 
-void AnimationManager::create(const std::string& name, const Texture& texture, int x, int y, int width, int height, int count)
+void AnimationManager::create(const std::string& name, const Texture& texture, int x, int y, int width, int height,
+	int count, float speed, int step = 0)
 {
+	m_animList[name] = Animation(texture, x, y, width, height, count, speed, step);
+	m_currentAnim = name;
+}
 
+inline void AnimationManager::draw(RenderWindow& window, int x, int y)
+{
+	m_animList[m_currentAnim].m_sprite.setPosition(x, y);		// Установка координат отрисовки
+	window.draw(m_animList[m_currentAnim].m_sprite);			// Отрисовка
 }

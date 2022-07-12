@@ -52,12 +52,23 @@ int main()
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(120);
 
-	// Tile Set
+	// Tile Set-Mario
 	Texture tileSet_texture;
 	tileSet_texture.loadFromFile("resources/images/Mario_Tileset.png");
+	// Tile Set-Fang
+	Texture fang_texture;
+	fang_texture.loadFromFile("resources/images/fang.png");
 
 	// Персонаж
-	Player p1(tileSet_texture);
+	//Player p1(tileSet_texture);
+	// Персонаж NEW
+	AnimationManager anim;
+	anim.create("walk", fang_texture, 0, 245, 39, 50, 6, 0.05f, 41);
+	anim.create("jump", fang_texture, 0, 527, 32, 32, 4, 0.05f, 35);
+	anim.create("duck", fang_texture, 7, 438, 60, 18, 1, 0.05f);
+	anim.create("stay", fang_texture, 0, 191, 42, 52, 3, 0.016f, 44);
+	anim.create("shoot", fang_texture, 0, 575, 44, 48, 5, 0.06f, 46);
+
 	// Противник
 	Enemy en1;
 	en1.set(tileSet_texture, 200, 100);
@@ -95,44 +106,57 @@ int main()
 
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::Left))
-		{
-			p1.m_dx = -0.4f;
-		}
+		// Обработка новой анимации
+		anim.set("stay");
 		if (Keyboard::isKeyPressed(Keyboard::Right))
-		{
-			p1.m_dx = 0.4f;
-		}
+			anim.set("walk");
+		if (Keyboard::isKeyPressed(Keyboard::Left))
+			anim.set("walk");
 		if (Keyboard::isKeyPressed(Keyboard::Up))
-		{
-			if (p1.m_onGround)
-			{
-				jump_sound.play();
-				p1.m_dy = -1.16f;		// Высота прыжка
-				p1.m_onGround = false;
-			}
-		}
+			anim.set("jump");
 		if (Keyboard::isKeyPressed(Keyboard::Down))
-		{
+			anim.set("duck");
+		if (Keyboard::isKeyPressed(Keyboard::Space))
+			anim.set("shoot");
+		anim.tick(time);
 
-		}
+		//if (Keyboard::isKeyPressed(Keyboard::Left))
+		//{
+		//	p1.m_dx = -0.4f;
+		//}
+		//if (Keyboard::isKeyPressed(Keyboard::Right))
+		//{
+		//	p1.m_dx = 0.4f;
+		//}
+		//if (Keyboard::isKeyPressed(Keyboard::Up))
+		//{
+		//	if (p1.m_onGround)
+		//	{
+		//		jump_sound.play();
+		//		p1.m_dy = -1.16f;		// Высота прыжка
+		//		p1.m_onGround = false;
+		//	}
+		//}
+		//if (Keyboard::isKeyPressed(Keyboard::Down))
+		//{
+		//}
 		// Обновление персонажа и врага(ов)
-		p1.update(time);
+		//p1.update(time);
 		en1.update(time);
 
 		// Обработка столкновения с врагом
-		if (p1.m_rect.intersects(en1.m_rect))	// Если спрайт игрока и врага пересекаются
-			if (en1.m_life)						// Если враг жив
-				if (p1.m_dy > 0)				// Если игрок падает
-				{
-					en1.m_life = false;
-					en1.m_dx = 0.f;
-					p1.m_dy = -0.8f;
-				}		
-				else                            // Если игрок не падает 
-				{
-					p1.m_sprite.setColor(Color::Red);
-				}
+		//if (p1.m_rect.intersects(en1.m_rect))	// Если спрайт игрока и врага пересекаются
+		//	if (en1.m_life)						// Если враг жив
+		//		if (p1.m_dy > 0)				// Если игрок падает
+		//		{
+		//			en1.m_life = false;
+		//			en1.m_dx = 0.f;
+		//			p1.m_dy = -0.8f;
+		//		}		
+		//		else                            // Если игрок не падает 
+		//		{
+		//			p1.m_sprite.setColor(Color::Red);
+		//		}
 
 		// Очистка экрана
 		window.clear(Color(70, 70, 70));
@@ -164,20 +188,23 @@ int main()
 				window.draw(tile_sprite);
 			}
 
+
+
 		// Отрисовка персонажа
-		window.draw(p1.m_sprite);
+		//window.draw(p1.m_sprite);
+		anim.draw(window, 50, 100);
 
 		// Отрисовка врага
 		window.draw(en1.m_sprite);
 
 		// Отрисовка камеры
-		int x = p1.m_rect.left + 8;		// Плюс половина ширины спрайта
-		int y = p1.m_rect.top + 8;		// Плюс половина высоты спрайта
-		if (p1.m_rect.left < (WINDOW_WIDTH / 2) - 8)	// Чтобы камера не уходила за левый край экрана
-			x = WINDOW_WIDTH / 2;	// Разница с условием, равна половине ширины спрайта( иначе будут резкие прыжки камеры)
-		if (p1.m_rect.top > ((MAP_HEIGHT * 16) / 2) + 28)	// Одталкиваемся от высоты карты а не экрана
-			y = ((MAP_HEIGHT * 16) / 2) + 32;
-		camera.setCenter(x, y);	// Устанавливаем камеру по центру персонажа
+		//int x = p1.m_rect.left + 8;		// Плюс половина ширины спрайта
+		//int y = p1.m_rect.top + 8;		// Плюс половина высоты спрайта
+		//if (p1.m_rect.left < (WINDOW_WIDTH / 2) - 8)	// Чтобы камера не уходила за левый край экрана
+		//	x = WINDOW_WIDTH / 2;	// Разница с условием, равна половине ширины спрайта( иначе будут резкие прыжки камеры)
+		//if (p1.m_rect.top > ((MAP_HEIGHT * 16) / 2) + 28)	// Одталкиваемся от высоты карты а не экрана
+		//	y = ((MAP_HEIGHT * 16) / 2) + 32;
+		//camera.setCenter(x, y);	// Устанавливаем камеру по центру персонажа
 		window.setView(camera);
 
 		window.display();
