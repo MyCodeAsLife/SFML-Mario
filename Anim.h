@@ -8,7 +8,7 @@ public:
 	std::vector<IntRect> m_frames;		// Массив обычных анимаций
 	std::vector<IntRect> m_frames_flip;	// Массив отзеркаленых анимаций
 	float m_currentFrame;				// Текущий кадр
-	float m_speed;						// Скорость
+	float m_speed;						// Скорость анимации
 	bool m_flip;						// Отображать анимацию зеркальную\нет
 	bool m_isPlaying;					// Проигровать/нет анимацию
 	Sprite m_sprite;
