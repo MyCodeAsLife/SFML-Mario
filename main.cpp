@@ -5,29 +5,12 @@
 #include <cstdlib>
 #include <iostream>
 #include "Map.h"
-//#include "Anim.h"
 #include "Player.h"
 
 using namespace sf;
 
 const int WINDOW_HEIGHT(250);
 const int WINDOW_WIDTH(400);
-
-//class PlayerOld
-//{
-//public:
-//	float m_dx, m_dy;	// Скорость по осям x/y
-//	FloatRect m_rect;	// Данные персонажа, координаты(x/y) и размер(ширина/высота) спрайта
-//	bool m_onGround;	// Состояние (в воздухе/на земле)
-//	Sprite m_sprite;	// Спарйт персонажа
-//	float m_currentFrame;	// Текущий кадр
-//
-//public:
-//	PlayerOld(Texture& texture);
-//	void update(const float time);
-//	void collision(const bool dir);
-//
-//};
 
 class Enemy
 {
@@ -60,8 +43,6 @@ int main()
 	Texture fang_texture;
 	fang_texture.loadFromFile("resources/images/fang.png");
 
-	// Персонаж
-	//Player p1(tileSet_texture);
 	// Персонаж NEW
 	AnimationManager anim;
 	anim.create("walk", fang_texture, 0, 245, 39, 50, 6, 0.05f, 41);
@@ -120,29 +101,9 @@ int main()
 			Fang.m_key["Down"] = true;
 		if (Keyboard::isKeyPressed(Keyboard::Space))
 			Fang.m_key["Space"] = true;
-		//anim.tick(time);
+
 		Fang.update(time);
 
-		//if (Keyboard::isKeyPressed(Keyboard::Left))
-		//{
-		//	p1.m_dx = -0.4f;
-		//}
-		//if (Keyboard::isKeyPressed(Keyboard::Right))
-		//{
-		//	p1.m_dx = 0.4f;
-		//}
-		//if (Keyboard::isKeyPressed(Keyboard::Up))
-		//{
-		//	if (p1.m_onGround)
-		//	{
-		//		jump_sound.play();
-		//		p1.m_dy = -1.16f;		// Высота прыжка
-		//		p1.m_onGround = false;
-		//	}
-		//}
-		//if (Keyboard::isKeyPressed(Keyboard::Down))
-		//{
-		//}
 		// Обновление персонажа и врага(ов)
 		//p1.update(time);
 		en1.update(time);
@@ -191,10 +152,7 @@ int main()
 				window.draw(tile_sprite);
 			}
 
-
-
 		// Отрисовка персонажа
-		//window.draw(p1.m_sprite);
 		Fang.m_anim.draw(window, Fang.m_x, Fang.m_y);
 
 		// Отрисовка врага
@@ -216,73 +174,6 @@ int main()
 	return 0;
 }
 ////////////////////////////////////////////////////////////END - MAIN///////////////////////////////////////////////
-
-//PlayerOld::PlayerOld(Texture& texture)
-//{
-//	m_sprite.setTexture(texture);
-//	m_rect = FloatRect(100, 180, 16, 16);
-//	m_dx = m_dy = 0.f;
-//	m_currentFrame = 0.f;
-//	m_onGround = false;
-//	m_sprite.setTextureRect(IntRect(112 + 31 * static_cast<int>(m_currentFrame), 144, 16, 16));
-//}
-
-//void PlayerOld::update(const float time)
-//{
-//	m_rect.left += m_dx * time;
-//	collision(0);	// Обработка колизии по х
-//
-//	if (!m_onGround)
-//		m_dy += (0.01f * time);	// Притяжение к земле
-//	m_rect.top += (m_dy * time);
-//	m_onGround = false;
-//	collision(1);	// // Обработка колизии по y
-//
-//	m_currentFrame += 0.05f * time;
-//	if (m_currentFrame > 3.f)
-//		m_currentFrame -= 3.f;
-//	if (m_dx > 0)
-//		m_sprite.setTextureRect(IntRect(112 + 30 * static_cast<int>(m_currentFrame), 144, 16, 16));
-//	if (m_dx < 0)
-//		m_sprite.setTextureRect(IntRect(112 + 30 * static_cast<int>(m_currentFrame) + 16, 144, -16, 16));
-//	m_sprite.setPosition(m_rect.left, m_rect.top);
-//
-//	m_dx = 0;
-//}
-
-//void PlayerOld::collision(bool dir)
-//{
-//	for (int i = m_rect.top / 16; i < (m_rect.top + m_rect.height) / 16; i++)
-//		for (int j = m_rect.left / 16; j < (m_rect.left + m_rect.width) / 16; j++)
-//		{
-//			if ((TileMap[i][j] == 'P') || (TileMap[i][j] == 'k') || (TileMap[i][j] == '0') || (TileMap[i][j] == 'r') || (TileMap[i][j] == 't'))
-//			{
-//				if (m_dy > 0 && dir == true)
-//				{
-//					m_rect.top = i * 16 - m_rect.height;
-//					m_dy = 0;
-//					m_onGround = true;
-//				}
-//				if (m_dy < 0 && dir == true)
-//				{
-//					m_rect.top = i * 16 + 16;
-//					m_dy = 0;
-//				}
-//				if (m_dx > 0 && dir == false)
-//				{
-//					m_rect.left = j * 16 - m_rect.width;
-//				}
-//				if (m_dx < 0 && dir == false)
-//				{
-//					m_rect.left = j * 16 + 16;
-//				}
-//			}
-//
-//			if (TileMap[i][j] == 'c') {
-//				// TileMap[i][j]=' '; 
-//			}
-//		}
-//}
 
 Enemy::Enemy()
 {

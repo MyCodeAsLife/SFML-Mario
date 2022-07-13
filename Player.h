@@ -81,11 +81,18 @@ inline void Player::KeyCheck()
 		{
 			m_dx = 0.f;
 			m_State = State::duck;
+			m_height = 18;
+			m_y += 28;
+			m_dy = 0;
 		}
 		if (m_State == State::swim || m_State == State::climb)	// Если мы плаваем или на лестнице, то медленно опускаемся
 		{
 			m_dy = 0.05f;
 		}
+		//if (m_State == State::jump/* && m_dy == 0*/)
+		//{
+		//	m_State == State::stay;
+		//}
 	}
 	if (m_key["Space"])
 		m_shoot = true;
@@ -104,6 +111,10 @@ inline void Player::KeyCheck()
 	if (!m_key["Down"])
 	{
 		if (m_State == State::duck)		// Если лежал то встает
+		{
+			m_State = State::stay;
+		}
+		if (m_State == State::jump && m_dy == 0)
 			m_State = State::stay;
 	}
 	if (!m_key["Space"])
@@ -116,7 +127,10 @@ inline void Player::update(float time)
 {
 	KeyCheck();
 	if (m_State == State::stay)
+	{
 		m_anim.set("stay");
+		m_height = 46;
+	}
 	if (m_State == State::walk)
 		m_anim.set("walk");
 	if (m_State == State::jump)
@@ -134,32 +148,36 @@ inline void Player::update(float time)
 	}
 	if (m_shoot)
 	{
-		m_anim.set("shoot");
+		if (m_State != State::duck)
+			m_anim.set("shoot");
 		if (m_State == State::walk)
 			m_anim.set("shootAndWalk");
 	}
 	m_anim.flip(m_dir);		// Поворот анимации
 
-
+	if (m_State == State::climb)
+		if (!m_onLadder)
+			m_State = State::stay;
+	if (m_State != State::climb)
+		m_dy += 0.01f * time;
+	m_onLadder = false;
 
 	m_x += m_dx * time;
 	collision(0);	// Обработка колизии по х
 
 	//if (!m_onGround)
-	m_dy += (0.01f * time);	// Притяжение к земле
+	//m_dy += (0.01f * time);	// Притяжение к земле
 	m_y += (m_dy * time);
 	//m_onGround = false;
 	collision(1);	// // Обработка колизии по y
-
-	//m_width = m_anim.m_animList[m_anim.m_currentAnim].m_frames[m_anim.m_animList[m_anim.m_currentAnim].m_currentFrame].width;
-	//m_height = m_anim.m_animList[m_anim.m_currentAnim].m_frames[m_anim.m_animList[m_anim.m_currentAnim].m_currentFrame].height;
-
+	
 	m_anim.tick(time);
 	m_key["R"] = m_key["L"] = m_key["Up"] = m_key["Down"] = m_key["Space"] = false;
 }
 
 inline void Player::collision(int dir)		// -------------Доработать---------------
 {
+	std::cout << m_height << std::endl;
 	for (int i = m_y / 16; i < (m_y + m_height) / 16; i++)
 		for (int j = m_x / 16; j < (m_x + m_width) / 16; j++)
 		{
@@ -169,8 +187,12 @@ inline void Player::collision(int dir)		// -------------Доработать--------------
 				{
 					m_y = i * 16 - m_height;
 					m_dy = 0;
-					m_onGround = true;
-					m_State = State::stay;
+					//m_onGround = true;
+					//if (!m_key["Down"] /*&& m_State == State::duck*/)
+					//{
+						//m_State = State::stay;			// Исправляет баг с анимацией прыжка, но появляется баг с высотой объекта
+					//	m_height = 46;
+					//}
 				}
 				if (m_dy < 0 && dir == true)
 				{
